@@ -6,29 +6,22 @@
 
 Kickstart.nvim is *not* a distribution.
 
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
+Kickstart.nvim is a template for your own configuration. The goal is that you can read every line of code, top-to-bottom, understand what your configuration is doing, and modify it to suit your needs.
   Once you've done that, you should start exploring, configuring and tinkering to
   explore Neovim!
 
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
+  If you don't know anything about Lua, I recommend taking some time to read through a guide. One possible example:
   - https://learnxinyminutes.com/docs/lua/
 
 
-  And then you can explore or search through `:help lua-guide`
-  - https://neovim.io/doc/user/lua-guide.html
+  And then you can explore or search through `:help lua-guide` - https://neovim.io/doc/user/lua-guide.html
 
 
 Kickstart Guide:
 
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
+I have left several `:help X` comments throughout the init.lua You should run that command and read that help section for more information.
 
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
+In addition, I have some `NOTE:` items throughout the file. These are for you, the reader to help understand what is happening. Feel free to delete
 them once you know what you're doing, but they should serve as a guide for when you
 are first encountering a few different constructs in your nvim config.
 
@@ -68,7 +61,7 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
-
+  'ThePrimeagen/vim-be-good',
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -112,7 +105,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',   opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -153,19 +146,21 @@ require('lazy').setup({
   },
 
   {
+    'xiyaowong/transparent.nvim'
+  },
+  {
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
-    
-    opts = {style = "warmer"},
+
+    opts = { style = "warmer" },
     priority = 1000,
     config = function()
       require('onedark').setup {
-      style = 'warmer'
-  }
+        style = 'warmer'
+      }
       vim.cmd.colorscheme 'onedark'
     end,
   },
-
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -190,7 +185,12 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+
+    }
+  },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -234,7 +234,7 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -242,10 +242,23 @@ require('lazy').setup({
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
+vim.o.incsearch = true
 
+vim.keymap.set('n', 'n', 'nzz', { desc = 'Recenter on next' })
+vim.keymap.set('n', 'p', 'pzz', { desc = 'Recenter on prev' })
+
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Re-center on Half-Page Down' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Re-center on Half-Page Up' })
+
+vim.keymap.set('n', 'H', '0', { desc = 'H goes to start of line' })
+vim.keymap.set('n', 'L', '$', { desc = 'L goes to end of line' })
+
+vim.keymap.set('v', '<', '<gv', { desc = 'Keep visual mode after indenting' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Keep visual mode after indenting' })
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -309,6 +322,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    path_display = { "truncate" },
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -350,7 +364,7 @@ local function live_grep_git_root()
   local git_root = find_git_root()
   if git_root then
     require('telescope.builtin').live_grep({
-      search_dirs = {git_root},
+      search_dirs = { git_root },
     })
   end
 end
@@ -504,7 +518,9 @@ require('which-key').register {
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
-require('mason').setup()
+require('mason').setup({
+  PATH = "append", -- Prioritize local plugins before Mason's installed plugins
+})
 require('mason-lspconfig').setup()
 
 -- Enable the following language servers
